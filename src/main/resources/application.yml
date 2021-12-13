@@ -1,0 +1,10 @@
+server:
+  port: 7777
+spring:
+  application:
+    name: sphinx
+    description: Application for testing microservice in test stand
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: chains
