@@ -4,6 +4,7 @@ spring:
   application:
     name: sphinx
     description: Application for testing microservice in test stand
+    repo: test
   data:
     mongodb:
       uri: mongodb://localhost:27017
