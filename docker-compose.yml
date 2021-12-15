@@ -8,7 +8,6 @@ services:
       - "27017:27017"
     volumes:
       - /home/developer/dev/db/:/data/db
-
   mongo-gui:
     container_name: "mongo-gui"
     image: ugleiton/mongo-gui

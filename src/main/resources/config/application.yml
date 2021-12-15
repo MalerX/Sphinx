@@ -1,0 +1,16 @@
+key:
+  mcName: Validation
+kafka:
+  bootstrapAddress: localhost:9092
+  groupId: sphinx
+  groupPr: shp_pr
+  topics:
+    in: incoming
+    out: outcoming
+server:
+  port: 7777
+spring:
+  data:
+    mongodb:
+      uri: mongodb://localhost:27017
+      database: chains
