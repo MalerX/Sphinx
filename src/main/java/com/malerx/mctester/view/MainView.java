@@ -2,6 +2,7 @@ package com.malerx.mctester.view;
 
 import com.malerx.mctester.kafka.PostmanService;
 import com.malerx.mctester.repositories.MongoTestDataRepositories;
+import com.malerx.mctester.service.validator.ValidationChain;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid;
@@ -23,27 +24,33 @@ public class MainView extends VerticalLayout {
     private final MongoTestDataRepositories repositories;
     private final String name;
     private final PostmanService postman;
+    private final ValidationChain validation;
 
     public Grid<RepoDataClass> grid = new Grid<>(RepoDataClass.class, false);
-    private Button startTest = new Button("Start", buttonClickEvent -> {
-    });
+    private Button startTest;
 
     @Autowired
-    public MainView(MongoTestDataRepositories repositories, @Value("${key.mcName}") String name, PostmanService postman) {
+    public MainView(MongoTestDataRepositories repositories,
+                    @Value("${key.mcName}") String name,
+                    PostmanService postman,
+                    ValidationChain validation
+    ) {
         this.postman = postman;
         this.name = name;
         this.repositories = repositories;
+        this.validation = validation;
+        this.startTest = new Button("Start", buttonClickEvent -> {
+            validation.validate();
+        });
         add(
                 setHeader(),
                 setGrid(),
                 startTest
         );
-        log.info("test logs");
         setAlignItems(Alignment.CENTER);
     }
 
     private Component setGrid() {
-        postman.send("Hello");
         grid.addColumn(RepoDataClass::getDatabaseName).setHeader("Database").setAutoWidth(true);
         grid.addColumn(RepoDataClass::getCollectionName).setHeader("Collection").setAutoWidth(true);
         grid.addColumn(RepoDataClass::getCountRecord).setHeader("Count chains").setAutoWidth(true);

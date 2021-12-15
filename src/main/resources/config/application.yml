@@ -1,5 +1,6 @@
 key:
   mcName: Validation
+  pathResult: /home/developer/dev/shevchenko/git/mctester/
 kafka:
   bootstrapAddress: localhost:9092
   groupId: sphinx
