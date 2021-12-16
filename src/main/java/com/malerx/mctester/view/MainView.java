@@ -1,5 +1,6 @@
 package com.malerx.mctester.view;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.malerx.mctester.kafka.PostmanService;
 import com.malerx.mctester.repositories.MongoTestDataRepositories;
 import com.malerx.mctester.service.validator.ValidationChain;
@@ -40,7 +41,11 @@ public class MainView extends VerticalLayout {
         this.repositories = repositories;
         this.validation = validation;
         this.startTest = new Button("Start", buttonClickEvent -> {
-            validation.validate();
+            try {
+                validation.validate();
+            } catch (InterruptedException | JsonProcessingException e) {
+                log.warn("Failed validation answer.", e);
+            }
         });
         add(
                 setHeader(),

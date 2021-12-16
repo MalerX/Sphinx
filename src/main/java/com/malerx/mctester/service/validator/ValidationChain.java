@@ -1,6 +1,8 @@
 package com.malerx.mctester.service.validator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+
 public interface ValidationChain {
 
-    public void validate();
+    void validate() throws InterruptedException, JsonProcessingException;
 }

@@ -17,7 +17,7 @@ import java.util.Date;
  */
 @Service
 @Slf4j
-public class ResultTestSaverImpl implements ResultTestSaver {
+public class ResultTestSaverImpl implements ResultTestSave {
     private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy-kk:mm");
     private final PrintWriter printWriter;
 

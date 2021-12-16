@@ -4,6 +4,6 @@ import lombok.NonNull;
 
 import java.io.IOException;
 
-public interface ResultTestSaver {
+public interface ResultTestSave {
     void save(@NonNull String resultTest) throws IOException;
 }
