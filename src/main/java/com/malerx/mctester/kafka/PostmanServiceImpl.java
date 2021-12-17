@@ -35,7 +35,7 @@ public class PostmanServiceImpl implements PostmanService {
     }
 
     @Override
-    @KafkaListener(id = "sphinx", topics = "${kafka.topics.out}", containerFactory = "singleFactory")
+    @KafkaListener(id = "sphinx", topics = "${kafka.topics.out}", containerFactory = "kafkaListenerContainerFactory", autoStartup = "true")
     public void consume(@NonNull String inMessage) throws InterruptedException {
         queue.put(inMessage);
     }
@@ -48,7 +48,6 @@ public class PostmanServiceImpl implements PostmanService {
             if (str != null) {
                 return str;
             }
-            Thread.sleep(1000);
             attempt++;
         } while (attempt != 3);
         return null;
