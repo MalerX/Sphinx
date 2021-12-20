@@ -1,8 +1,13 @@
 package com.malerx.mctester.service.validator;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.malerx.mctester.model.Chain;
+import lombok.NonNull;
 
-public interface ValidationChain {
+import java.util.concurrent.BlockingQueue;
 
-    void validate() throws InterruptedException, JsonProcessingException;
+public interface ValidationChain extends Runnable {
+
+    void validate();
+
+    void setQueues(@NonNull BlockingQueue<Chain> queueRaw, @NonNull BlockingQueue<String> queueReady);
 }
