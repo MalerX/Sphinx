@@ -41,7 +41,13 @@ public class MasterOverFlows {
 
     private void setPoolThreads() {
         executor.execute(bearerChain);
-        executor.execute(validation);
-        executor.execute(save);
+        try {
+            Thread.sleep(5000);
+            executor.execute(validation);
+            Thread.sleep(10000);
+            executor.execute(save);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

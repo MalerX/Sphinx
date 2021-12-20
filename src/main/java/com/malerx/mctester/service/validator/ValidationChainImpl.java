@@ -1,5 +1,6 @@
 package com.malerx.mctester.service.validator;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.malerx.mctester.kafka.PostmanService;
 import com.malerx.mctester.model.Chain;
 import com.malerx.mctester.model.ChainElement;
@@ -27,9 +28,11 @@ public class ValidationChainImpl implements ValidationChain {
 
     @Override
     public void validate() {
+        int i = 0;
         while (!rawData.isEmpty()) {
             try {
                 Chain chain = Objects.requireNonNull(rawData.poll(500, TimeUnit.MILLISECONDS));
+                log.info("Read from queue in Validate chain {}", i++);
                 for (ChainElement element : chain.getChain()) {
                     if (element.getDirection().equals("in")) {
                         postman.send(element.getTopic_name(), element.getData());
@@ -44,6 +47,8 @@ public class ValidationChainImpl implements ValidationChain {
                 }
             } catch (InterruptedException e) {
                 log.info("Process has been interrupt", e);
+            } catch (JsonProcessingException e) {
+                log.warn("Failed convert string to JsonNode", e);
             }
         }
     }

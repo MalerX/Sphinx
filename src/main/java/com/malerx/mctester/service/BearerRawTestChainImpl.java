@@ -22,16 +22,14 @@ public class BearerRawTestChainImpl implements BearerRawTestChain {
 
     @Override
     public void loadTestChain() {
-        Page<Chain> page = repositories.findAll(Pageable.ofSize(QUANTITY));
-        while (page.hasNext()) {
-            page.stream().forEach(chain -> {
-                try {
-                    rawData.put(chain);
-                } catch (InterruptedException e) {
-                    log.info("Process has been interrupt.", e);
-                    throw new RuntimeException("Process has been interrupt", e);
-                }
-            });
+        log.info("Start read test chain from db. In db {} test chains.", repositories.count());
+        for (Chain chain : repositories.findAll()) {
+            try {
+                rawData.put(chain);
+            } catch (InterruptedException e) {
+                log.info("Process has been interrupt.", e);
+                throw new RuntimeException("Process has been interrupt", e);
+            }
         }
     }
 
