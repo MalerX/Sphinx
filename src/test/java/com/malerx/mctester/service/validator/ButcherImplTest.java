@@ -26,11 +26,10 @@ class ButcherImplTest {
             int i = 0;
             List<String> tmp = new ArrayList<>(3);
             while ((str = reader.readLine()) != null) {
-                i++;
                 tmp.add(str);
-                if (i % 3 == 0) {
-                    testData.add(tmp);
-                    tmp = new ArrayList<>(3);
+                if (++i % 3 == 0) {
+                    testData.add(List.copyOf(tmp));
+                    tmp.clear();
                 }
             }
         } catch (FileNotFoundException e) {
@@ -43,9 +42,9 @@ class ButcherImplTest {
     @Test
     void butchAndCompare() throws JsonProcessingException {
         Butcher butcher = new ButcherImpl(new ObjectMapper());
-        for (List<String> test : testData) {
-            String answer = butcher.butchAndCompare(test.get(0), test.get(1));
-            assertEquals(test.get(2), answer);
+        for (List<String> list : testData) {
+            String answer = butcher.butchAndCompare(list.get(0), list.get(1));
+            assertEquals(list.get(2), answer);
         }
     }
 }

@@ -23,23 +23,29 @@ public class ButcherImpl implements Butcher {
     private final ObjectMapper mapper;
 
     @Override
-    public @NonNull String butchAndCompare(@NonNull String expected, @NonNull String received) throws JsonProcessingException {
+    public @NonNull String butchAndCompare(@NonNull String expected, @NonNull String received)
+            throws JsonProcessingException {
         JsonNode expectedNode = mapper.readTree(expected);
         JsonNode receivedNode = mapper.readTree(received);
         if (expectedNode.size() != receivedNode.size()) {
-            return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s", expected, received);
+            return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s",
+                    expected, received);
         } else if (!expectedNode.equals(receivedNode)) {
             try {
                 return "Fail.\t" + deepCompare(expectedNode, receivedNode);
             } catch (NotEqualsFormatMessageException e) {
-                return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s", expected, received);
+                return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s",
+                        expected, received);
             }
         }
         return "Successful";
     }
 
     /**
-     * Рекурсиваная функция для обхода дерева.
+     * Рекурсиваная функция для обхода дерева. Проваливаемся всё глубже и глубже, пока не дойдём до элемента ValueNode
+     * (не мапы и не массива), сравниваем, пишем в StringBuilder результат (только equal если поля равны и подробно,
+     * с значениями если не равны) и передаём строку-результат-сравнения на верх из рекурсивного метода, где всё
+     * конкатенируется в к имени поля.
      *
      * @param expectedNode -- ожидаемое сообщение. Фоормат {@link JsonNode}
      * @param receivedNode -- полученный от микросервиса ответ. Формат {@link JsonNode}
