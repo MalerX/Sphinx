@@ -12,6 +12,9 @@ import org.springframework.stereotype.Service;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * Функционал класса -- глубокое сравнение JSON при помощи рекурсивной функции обхода сложного вложенного дерева.
+ */
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -23,16 +26,24 @@ public class ButcherImpl implements Butcher {
         JsonNode expectedNode = mapper.readTree(expected);
         JsonNode receivedNode = mapper.readTree(received);
         if (expectedNode.size() != receivedNode.size()) {
-            return String.format("The expected message format does not match the received one: %s -- %s", expected, received);
+            return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s", expected, received);
         } else if (!expectedNode.equals(receivedNode)) {
-            return deepCompare(expectedNode, receivedNode);
+            return "Fail.\t" + deepCompare(expectedNode, receivedNode);
         }
-        return "Successful. Expected and received answers equals.";
+        return "Successful";
     }
 
+    /**
+     * Рекурсиваная функция для обхода дерева.
+     *
+     * @param expectedNode -- ожидаемое сообщение. Фоормат {@link JsonNode}
+     * @param receivedNode -- полученный от микросервиса ответ. Формат {@link JsonNode}
+     * @return возвращается {@link String}, в которой перечислены все поля дерева с результатами сравнения.
+     */
     @NonNull
     private String deepCompare(JsonNode expectedNode, JsonNode receivedNode) {
         StringBuilder builder = new StringBuilder();
+
         if (expectedNode.isContainerNode() && !expectedNode.isArray()) {
             Iterator<Map.Entry<String, JsonNode>> iterator = expectedNode.fields();
             while (iterator.hasNext()) {
@@ -53,38 +64,37 @@ public class ButcherImpl implements Butcher {
                 builder
                         .append(String.format("array[%d]: ", i))
                         .append(deepCompare(nodeExp, nodeRec))
-                        .append("\t");
+                        .append("\s");
             }
         } else if (expectedNode.isValueNode()) {
-            builder.append(
-                    compare(expectedNode, receivedNode)
-            ).append("\t");
+
+            if (expectedNode.equals(receivedNode)) {
+                builder.append("equal.");
+            } else
+                builder.append(String.format("NON EQUALS expected '%s' != received '%s'.",
+                        expectedNode.asText(), receivedNode.asText()));
         }
         return builder.toString().trim();
     }
 
-    private String compare(JsonNode expected, JsonNode received) {
-        StringBuilder builder = new StringBuilder();
-        String one = expected.textValue();
-        String two = received.textValue();
-
-        if (one.equals(two)) {
-            builder.append("equals");
-        } else
-            builder.append(String.format("NON EQUALS: expected = %s -- received = %s", one, two));
-        return builder.toString();
-    }
 
     public static void main(String[] args) throws JsonProcessingException {
         Butcher butcher = new ButcherImpl(new ObjectMapper());
-        String expected = """
-                {"books":{"book":[{"title":"CPP","author":"Milton","year":"2008","price":"456.00"},{"title":"JAVA","author":"Gilson","year":"2002","price":"456.00"}]}}
+//        String expected = """
+//                {"books":{"book":[{"title":"CPP","author":"Milton","year":"2008","price":"456.00"},{"title":"JAVA","author":"Gilson","year":"2002","price":"456.00"}]}}
+//                """;
+//        String received = """
+//                {"books":{"book":[{"title":"CPP","author":"Jhon Boy","year":"2021","price":"456.00"},{"title":"Phyton","author":"Gilson","year":"2002","price":"456.00"}]}}
+//                """;
+
+        String ex = """
+                {"method":"fees_limits","params":{"operation_type":"1","currency_in":"BTC","provider_in":"advcash_card"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
                 """;
-        String received = """
-                {"books":{"book":[{"title":"CPP","author":"Jhon Boy","year":"2021","price":"456.00"},{"title":"Phyton","author":"Gilson","year":"2002","price":"456.00"}]}}
+        String rec = """
+                {"method":"fees_limits","params":{"operation_type":"2","currency_in":"BTC","provider_in":"advcash_card"},"id":"a141005a-7d47-4f52-a8e9-10891155d8a2"}
                 """;
 
-        String s = butcher.butchAndCompare(expected, received);
+        String s = butcher.butchAndCompare(ex, rec);
         System.out.println(s);
     }
 }
