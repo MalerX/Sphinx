@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.malerx.mctester.exceptions.NotEqualsFormatMessageException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +29,11 @@ public class ButcherImpl implements Butcher {
         if (expectedNode.size() != receivedNode.size()) {
             return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s", expected, received);
         } else if (!expectedNode.equals(receivedNode)) {
-            return "Fail.\t" + deepCompare(expectedNode, receivedNode);
+            try {
+                return "Fail.\t" + deepCompare(expectedNode, receivedNode);
+            } catch (NotEqualsFormatMessageException e) {
+                return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s", expected, received);
+            }
         }
         return "Successful";
     }
@@ -41,7 +46,7 @@ public class ButcherImpl implements Butcher {
      * @return возвращается {@link String}, в которой перечислены все поля дерева с результатами сравнения.
      */
     @NonNull
-    private String deepCompare(JsonNode expectedNode, JsonNode receivedNode) {
+    private String deepCompare(JsonNode expectedNode, JsonNode receivedNode) throws NotEqualsFormatMessageException {
         StringBuilder builder = new StringBuilder();
 
         if (expectedNode.isContainerNode() && !expectedNode.isArray()) {
@@ -55,46 +60,33 @@ public class ButcherImpl implements Butcher {
                         ).append("\t");
             }
         } else if (expectedNode.isArray()) {
-            ArrayNode arrayNodeExpected = ((ArrayNode) expectedNode);
-            ArrayNode arrayNodeReceived = ((ArrayNode) receivedNode);
+            ArrayNode arrayNodeExpected;
+            ArrayNode arrayNodeReceived;
+            if (expectedNode instanceof ArrayNode expected) {
+                arrayNodeExpected = expected;
+            } else
+                throw new NotEqualsFormatMessageException();
+            if (receivedNode instanceof ArrayNode received) {
+                arrayNodeReceived = received;
+            } else
+                throw new NotEqualsFormatMessageException();
             int arraySize = arrayNodeExpected.size();
             for (int i = 0; i < arraySize; i++) {
-                JsonNode nodeExp = arrayNodeExpected.get(i);
-                JsonNode nodeRec = arrayNodeReceived.get(i);
                 builder
                         .append(String.format("array[%d]: ", i))
-                        .append(deepCompare(nodeExp, nodeRec))
-                        .append("\s");
+                        .append(
+                                deepCompare(arrayNodeExpected.get(i), arrayNodeReceived.get(i))
+                        ).append("\t");
             }
-        } else if (expectedNode.isValueNode()) {
-
+        } else if (expectedNode.isValueNode() && receivedNode != null) {
             if (expectedNode.equals(receivedNode)) {
                 builder.append("equal.");
             } else
                 builder.append(String.format("NON EQUALS expected '%s' != received '%s'.",
                         expectedNode.asText(), receivedNode.asText()));
+        } else if (receivedNode == null) {
+            throw new NotEqualsFormatMessageException();
         }
         return builder.toString().trim();
-    }
-
-
-    public static void main(String[] args) throws JsonProcessingException {
-        Butcher butcher = new ButcherImpl(new ObjectMapper());
-//        String expected = """
-//                {"books":{"book":[{"title":"CPP","author":"Milton","year":"2008","price":"456.00"},{"title":"JAVA","author":"Gilson","year":"2002","price":"456.00"}]}}
-//                """;
-//        String received = """
-//                {"books":{"book":[{"title":"CPP","author":"Jhon Boy","year":"2021","price":"456.00"},{"title":"Phyton","author":"Gilson","year":"2002","price":"456.00"}]}}
-//                """;
-
-        String ex = """
-                {"method":"fees_limits","params":{"operation_type":"1","currency_in":"BTC","provider_in":"advcash_card"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
-                """;
-        String rec = """
-                {"method":"fees_limits","params":{"operation_type":"2","currency_in":"BTC","provider_in":"advcash_card"},"id":"a141005a-7d47-4f52-a8e9-10891155d8a2"}
-                """;
-
-        String s = butcher.butchAndCompare(ex, rec);
-        System.out.println(s);
     }
 }
