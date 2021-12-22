@@ -9,6 +9,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +23,6 @@ public class BearerRawTestChainImpl implements BearerRawTestChain {
 
     @Override
     public void loadTestChain() {
-        log.info("Start read test chain from db. In db {} test chains.", repositories.count());
         for (Chain chain : repositories.findAll()) {
             String resultTestChain = validationChain.validate(chain);
             try {
@@ -34,6 +35,12 @@ public class BearerRawTestChainImpl implements BearerRawTestChain {
 
     @Override
     public void run() {
+        long start = new Date().getTime();
+        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy-kk:mm:ss:S");
+        log.info("Start test. Chains in db {}. Timestamp start: {} .", repositories.count(), format.format(new Date()));
         loadTestChain();
+        resultTestSave.close();
+        long finish = new Date().getTime();
+        log.info("Finish test. Timestamp finish: {}. Duration test: {}", format.format(new Date()), (finish - start) / 1000);
     }
 }

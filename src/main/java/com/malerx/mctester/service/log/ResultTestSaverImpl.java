@@ -35,6 +35,7 @@ public class ResultTestSaverImpl implements ResultTestSave {
         bf.write(resultTest);
     }
 
+    @Override
     public void close() {
         try {
             bf.close();
