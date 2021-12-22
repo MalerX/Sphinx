@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Функционал класса -- глубокое сравнение JSON при помощи рекурсивной функции обхода сложного вложенного дерева.
@@ -44,7 +45,7 @@ public class ButcherImpl implements Butcher {
     /**
      * Рекурсиваная функция для обхода дерева. Проваливаемся всё глубже и глубже, пока не дойдём до элемента ValueNode
      * (не мапы и не массива), сравниваем, пишем в StringBuilder результат (только equal если поля равны и подробно,
-     * с значениями если не равны) и передаём строку-результат-сравнения на верх из рекурсивного метода, где всё
+     * со значениями если не равны) и передаём строку-результат-сравнения на верх из рекурсивного метода, где всё
      * конкатенируется в к имени поля.
      *
      * @param expectedNode -- ожидаемое сообщение. Фоормат {@link JsonNode}
@@ -59,6 +60,8 @@ public class ButcherImpl implements Butcher {
             Iterator<Map.Entry<String, JsonNode>> iterator = expectedNode.fields();
             while (iterator.hasNext()) {
                 Map.Entry<String, JsonNode> entry = iterator.next();
+//                Проверка на соответсвие форматов. Если в полученом json нет такого же поля, как в полученном json --
+//                бросаем NotEqualsFormatMessageException.
                 if (receivedNode.get(entry.getKey()) == null) {
                     throw new NotEqualsFormatMessageException();
                 }
@@ -69,22 +72,26 @@ public class ButcherImpl implements Butcher {
                         ).append("\t");
             }
         } else if (expectedNode.isArray()) {
-            ArrayNode arrayNodeExpected;
-            ArrayNode arrayNodeReceived;
-            if (expectedNode instanceof ArrayNode expected) {
-                arrayNodeExpected = expected;
+            ArrayNode arrayNodeExpected = ((ArrayNode) expectedNode);
+            Optional<ArrayNode> optionalArrayNodeRec;
+
+//            Если запрошенный эл-нт в полученном json не является ArrayNode -- полученный формат не соответствует
+//            ожидаемому, бросаем NotEqualsFormatMessageException
+            if (receivedNode instanceof ArrayNode arrayNode) {
+                optionalArrayNodeRec = Optional.of(arrayNode);
             } else
                 throw new NotEqualsFormatMessageException();
-            if (receivedNode instanceof ArrayNode received) {
-                arrayNodeReceived = received;
-            } else
-                throw new NotEqualsFormatMessageException();
+
             int arraySize = arrayNodeExpected.size();
             for (int i = 0; i < arraySize; i++) {
                 builder
                         .append(String.format("array[%d]: ", i))
                         .append(
-                                deepCompare(arrayNodeExpected.get(i), arrayNodeReceived.get(i))
+                                deepCompare(
+                                        arrayNodeExpected.get(i),
+//                                        Если полученный ArrayNode == null -- бросаем NotEqualsFormatMessageException
+                                        optionalArrayNodeRec.orElseThrow(NotEqualsFormatMessageException::new).get(i)
+                                )
                         ).append("\t");
             }
         } else if (expectedNode.isValueNode() && receivedNode != null) {
