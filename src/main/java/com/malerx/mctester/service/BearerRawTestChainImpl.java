@@ -2,40 +2,34 @@ package com.malerx.mctester.service;
 
 import com.malerx.mctester.model.Chain;
 import com.malerx.mctester.repositories.MongoTestDataRepositories;
-import lombok.NonNull;
+import com.malerx.mctester.service.log.ResultTestSave;
+import com.malerx.mctester.service.validator.ValidationChain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.concurrent.BlockingQueue;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class BearerRawTestChainImpl implements BearerRawTestChain {
-    private final static int QUANTITY = 1000;
 
     private final MongoTestDataRepositories repositories;
-    private BlockingQueue<Chain> rawData;
+    private final ValidationChain validationChain;
+    private final ResultTestSave resultTestSave;
 
     @Override
     public void loadTestChain() {
         log.info("Start read test chain from db. In db {} test chains.", repositories.count());
         for (Chain chain : repositories.findAll()) {
+            String resultTestChain = validationChain.validate(chain);
             try {
-                rawData.put(chain);
-            } catch (InterruptedException e) {
-                log.info("Process has been interrupt.", e);
-                throw new RuntimeException("Process has been interrupt", e);
+                resultTestSave.save(resultTestChain);
+            } catch (IOException e) {
+                log.warn("Fail save result test", e);
             }
         }
-    }
-
-    @Override
-    public void setQueue(@NonNull BlockingQueue<Chain> queue) {
-        this.rawData = queue;
     }
 
     @Override

@@ -9,6 +9,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Objects;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -21,47 +23,35 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 public class ValidationChainImpl implements ValidationChain {
-    private final PostmanService postman;
+    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy-kk:mm");
+
     private final Butcher butcher;
-    private BlockingQueue<Chain> rawData;
-    private BlockingQueue<String> readyData;
+    private final PostmanService postman;
 
     @Override
-    public void validate() {
-        int i = 0;
-        while (!rawData.isEmpty()) {
-            try {
-                Chain chain = Objects.requireNonNull(rawData.poll(500, TimeUnit.MILLISECONDS));
-                log.info("Read from queue in Validate chain {}", i++);
-                for (ChainElement element : chain.getChain()) {
-                    if (element.getDirection().equals("in")) {
-                        postman.send(element.getTopic_name(), element.getData());
-                    } else if (element.getDirection().equals("out")) {
-                        String received = postman.getAnswer();
-                        if (received == null) {
-                            log.info("Chain {} was skipped,", chain.getId());
-                            continue;
-                        }
-                        readyData.put(butcher.butchAndCompare(element.getData(), received));
+    public @NonNull String validate(@NonNull Chain chain) {
+        StringBuilder result = new StringBuilder();
+        try {
+            for (ChainElement element : chain.getChain()) {
+                if (element.getDirection().equals("in")) {
+                    postman.send(element.getTopic_name(), element.getData());
+                } else if (element.getDirection().equals("out")) {
+                    String received = postman.getAnswer();
+                    if (received == null) {
+                        log.info("Chain {} was skipped,", chain.getId());
+                        continue;
                     }
+                    result.append(dateFormatter.format(new Date()))
+                            .append("\t")
+                            .append(butcher.butchAndCompare(element.getData(), received))
+                            .append("\n");
                 }
-            } catch (InterruptedException e) {
-                log.info("Process has been interrupt", e);
-            } catch (JsonProcessingException e) {
-                log.warn("Failed convert string to JsonNode", e);
             }
+        } catch (InterruptedException e) {
+            log.info("Process has been interrupt", e);
+        } catch (JsonProcessingException e) {
+            log.warn("Failed convert string to JsonNode", e);
         }
-    }
-
-    @Override
-    public void setQueues(@NonNull BlockingQueue<Chain> queueRaw, @NonNull BlockingQueue<String> queueReady) {
-        this.rawData = queueRaw;
-        this.readyData = queueReady;
-    }
-
-    @Override
-    public void run() {
-        log.info("Start read test chain from DB");
-        validate();
+        return result.toString();
     }
 }
