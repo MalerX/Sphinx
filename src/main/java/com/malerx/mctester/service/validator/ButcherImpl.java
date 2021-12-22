@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ContainerNode;
 import com.malerx.mctester.exceptions.NotEqualsFormatMessageException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -60,16 +61,16 @@ public class ButcherImpl implements Butcher {
             Iterator<Map.Entry<String, JsonNode>> iterator = expectedNode.fields();
             while (iterator.hasNext()) {
                 Map.Entry<String, JsonNode> entry = iterator.next();
-//                Проверка на соответсвие форматов. Если в полученом json нет такого же поля, как в полученном json --
+//                Проверка на соответсвие форматов. Если в полученом json нет такого же поля, как в ожидаемом json --
 //                бросаем NotEqualsFormatMessageException.
-                if (receivedNode.get(entry.getKey()) == null) {
-                    throw new NotEqualsFormatMessageException();
-                }
+                Optional<JsonNode> receivedNodeChild = Optional.of(receivedNode.get(entry.getKey()));
                 builder
                         .append(String.format("%s: ", entry.getKey()))
                         .append(
-                                deepCompare(entry.getValue(), receivedNode.findValue(entry.getKey()))
-                        ).append("\t");
+                                deepCompare(
+                                        entry.getValue(),
+                                        receivedNodeChild.orElseThrow(NotEqualsFormatMessageException::new)))
+                        .append("\t");
             }
         } else if (expectedNode.isArray()) {
             ArrayNode arrayNodeExpected = ((ArrayNode) expectedNode);
