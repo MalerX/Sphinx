@@ -59,6 +59,9 @@ public class ButcherImpl implements Butcher {
             Iterator<Map.Entry<String, JsonNode>> iterator = expectedNode.fields();
             while (iterator.hasNext()) {
                 Map.Entry<String, JsonNode> entry = iterator.next();
+                if (receivedNode.get(entry.getKey()) == null) {
+                    throw new NotEqualsFormatMessageException();
+                }
                 builder
                         .append(String.format("%s: ", entry.getKey()))
                         .append(
