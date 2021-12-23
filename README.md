@@ -12,6 +12,8 @@
 4. Выполнить сравнение полученного и ожидаемого (в поле **data**) сообщения.
 5. Записать результат сравнения в текстовый файл. Формат строки следующий:
 
-|       Date      |          chain_id         |  result | detail |
-|:---------------:|:-------------------------:|:-------:|:------:|
-| dd.MM.yyyy-kk:mm|  61b7195596ae3c4390119609 |    OK   |        |
+|        Date       |          chain_id         |  result | detail |
+|:-----------------:|:-------------------------:|:-------:|:------:|
+| dd.MM.yyyy-kk:mm:S|  61b7195596ae3c4390119609 |    OK   |        |
+| dd.MM.yyyy-kk:mm:S|  61b7195596ae3c4390119609 |   FAIL  | error: code: NON EQUALS expected '42' != received '400'. |
+| dd.MM.yyyy-kk:mm:S|  61b7195596ae3c4390119609 |   FAIL  | The expected message format does not match the received one: |
