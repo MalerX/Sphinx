@@ -23,7 +23,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RequiredArgsConstructor
 public class ValidationChainImpl implements ValidationChain {
-    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy-kk:mm");
+    private static final SimpleDateFormat dateFormatter = new SimpleDateFormat("dd.MM.yyyy-kk:mm:ss:S");
 
     private final Butcher butcher;
     private final PostmanService postman;
@@ -42,6 +42,8 @@ public class ValidationChainImpl implements ValidationChain {
                         continue;
                     }
                     result.append(dateFormatter.format(new Date()))
+                            .append("\t")
+                            .append(chain.getId())
                             .append("\t")
                             .append(butcher.butchAndCompare(element.getData(), received))
                             .append("\n");

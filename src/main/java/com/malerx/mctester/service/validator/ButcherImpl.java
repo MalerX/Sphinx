@@ -54,7 +54,7 @@ public class ButcherImpl implements Butcher {
     private String deepCompare(JsonNode expectedNode, JsonNode receivedNode) throws NotEqualsFormatMessageException {
         StringBuilder builder = new StringBuilder();
 
-        if (expectedNode.size() != receivedNode.size()) {
+        if (receivedNode == null || expectedNode.size() != receivedNode.size()) {
             throw new NotEqualsFormatMessageException();
         }
 
@@ -64,7 +64,7 @@ public class ButcherImpl implements Butcher {
                 Map.Entry<String, JsonNode> entry = iterator.next();
 //                Проверка на соответсвие форматов. Если в полученом json нет такого же поля, как в ожидаемом json --
 //                бросаем NotEqualsFormatMessageException.
-                Optional<JsonNode> receivedNodeChild = Optional.of(receivedNode.get(entry.getKey()));
+                Optional<JsonNode> receivedNodeChild = Optional.ofNullable(receivedNode.get(entry.getKey()));
                 builder
                         .append(String.format("%s: ", entry.getKey()))
                         .append(
@@ -80,7 +80,7 @@ public class ButcherImpl implements Butcher {
 //            Если запрошенный эл-нт в полученном json не является ArrayNode -- полученный формат не соответствует
 //            ожидаемому, бросаем NotEqualsFormatMessageException
             if (receivedNode instanceof ArrayNode arrayNode) {
-                optionalArrayNodeRec = Optional.of(arrayNode);
+                optionalArrayNodeRec = Optional.ofNullable(arrayNode);
             } else
                 throw new NotEqualsFormatMessageException();
 
