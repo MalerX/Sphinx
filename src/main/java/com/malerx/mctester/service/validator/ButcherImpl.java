@@ -29,18 +29,15 @@ public class ButcherImpl implements Butcher {
             throws JsonProcessingException {
         JsonNode expectedNode = mapper.readTree(expected);
         JsonNode receivedNode = mapper.readTree(received);
-        if (expectedNode.size() != receivedNode.size()) {
-            return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s",
-                    expected, received);
-        } else if (!expectedNode.equals(receivedNode)) {
+        if (!expectedNode.equals(receivedNode)) {
             try {
-                return "Fail.\t" + deepCompare(expectedNode, receivedNode);
+                return "FAIL.\t" + deepCompare(expectedNode, receivedNode);
             } catch (NotEqualsFormatMessageException e) {
-                return String.format("Fail.\tThe expected message format does not match the received one: %s -- %s",
+                return String.format("FAIL.\tThe expected message format does not match the received one: %s -- %s",
                         expected, received);
             }
         }
-        return "Successful";
+        return "OK";
     }
 
     /**
@@ -56,6 +53,10 @@ public class ButcherImpl implements Butcher {
     @NonNull
     private String deepCompare(JsonNode expectedNode, JsonNode receivedNode) throws NotEqualsFormatMessageException {
         StringBuilder builder = new StringBuilder();
+
+        if (expectedNode.size() != receivedNode.size()) {
+            throw new NotEqualsFormatMessageException();
+        }
 
         if (expectedNode.isContainerNode() && !expectedNode.isArray()) {
             Iterator<Map.Entry<String, JsonNode>> iterator = expectedNode.fields();
@@ -95,14 +96,12 @@ public class ButcherImpl implements Butcher {
                                 )
                         ).append("\t");
             }
-        } else if (expectedNode.isValueNode() && receivedNode != null) {
+        } else if (expectedNode.isValueNode()) {
             if (expectedNode.equals(receivedNode)) {
                 builder.append("equal.");
             } else
                 builder.append(String.format("NON EQUALS expected '%s' != received '%s'.",
                         expectedNode.asText(), receivedNode.asText()));
-        } else if (receivedNode == null) {
-            throw new NotEqualsFormatMessageException();
         }
         return builder.toString().trim();
     }

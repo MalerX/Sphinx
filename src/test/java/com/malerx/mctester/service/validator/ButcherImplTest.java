@@ -17,10 +17,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ButcherImplTest {
     private static final String pathTestData = "src/main/resources/test/ButcherImplTestData.txt";
-    private static final List<List<String>> testData = new ArrayList<>();
+    private static List<List<String>> testData;
 
     @BeforeAll
     static void fillTestData() {
+        testData = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(pathTestData))) {
             String str;
             int i = 0;

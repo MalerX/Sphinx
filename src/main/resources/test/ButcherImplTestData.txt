@@ -1,15 +1,15 @@
 {"method":"fees_limits","params":{"operation_type":"1","currency_in":"BTC","provider_in":"advcash_card"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
 {"method":"fees_limits","params":{"operation_type":"1","currency_in":"BTC","provider_in":"advcash_card"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
-Successful
+OK
 {"result":{"currency_in":{"provider_in":"advcash_card","operation_type":"1","sum_in_min":"400","sum_in_max":"600000","sum_in_max_no_verify":"80000","fee_in_rate":"0.02","fee_in_fix":"25","in_enable":"true","in_identity":"false","in_max_request_time":"259200"},"commission":"0.02"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
 {"result":{"currency_in":{"provider_in":"advcash_caArd","operation_type":"1","sum_in_min":"400","sum_in_max":"600000","sum_in_max_no_verify":"80000","fee_in_rate":"0.02","fee_in_fix":"27","in_enable":"false","in_identity":"false","in_max_request_time":"259200"},"commission":"0.02"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
-Fail.	result: currency_in: provider_in: NON EQUALS expected 'advcash_card' != received 'advcash_caArd'.	operation_type: equal.	sum_in_min: equal.	sum_in_max: equal.	sum_in_max_no_verify: equal.	fee_in_rate: equal.	fee_in_fix: NON EQUALS expected '25' != received '27'.	in_enable: NON EQUALS expected 'true' != received 'false'.	in_identity: equal.	in_max_request_time: equal.	commission: equal.	id: equal.
+FAIL.	result: currency_in: provider_in: NON EQUALS expected 'advcash_card' != received 'advcash_caArd'.	operation_type: equal.	sum_in_min: equal.	sum_in_max: equal.	sum_in_max_no_verify: equal.	fee_in_rate: equal.	fee_in_fix: NON EQUALS expected '25' != received '27'.	in_enable: NON EQUALS expected 'true' != received 'false'.	in_identity: equal.	in_max_request_time: equal.	commission: equal.	id: equal.
 {"result":{"user_id":"1000","status":"selfi","comment":"string","confirmed_date":""},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
 {"result":{"user_id":"1000","validation":"true"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
-Fail.	The expected message format does not match the received one: {"result":{"user_id":"1000","status":"selfi","comment":"string","confirmed_date":""},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"} -- {"result":{"user_id":"1000","validation":"true"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
+FAIL.	The expected message format does not match the received one: {"result":{"user_id":"1000","status":"selfi","comment":"string","confirmed_date":""},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"} -- {"result":{"user_id":"1000","validation":"true"},"id":"a141905a-7d47-4f52-a8e9-10891155d8a2"}
 {"books":{"book":[{"title":"CPP","author":"Milton","year":"2008","price":"456.00"},{"title":"JAVA","author":"Gilson","year":"2002","price":"456.00"}]}}
 {"books":{"book":[{"title":"CPP","author":"Milton","year":"2008","price":"456.00"},{"title":"JAVA","author":"Gilson","year":"2002","price":"456.00"}]}}
-Successful
+OK
 {"books":{"book":[{"title":"CPP","author":"Milton","year":"2008","price":"456.00"},{"title":"JAVA","author":"Gilson","year":"2002","price":"456.00"}]}}
 {"books":{"book":[{"title":"Java","author":"Gilson","year":"2006","price":"456.00"},{"title":"JAVA","author":"Gilson","year":"2002","price":"456.00"}]}}
-Fail.	books: book: array[0]: title: NON EQUALS expected 'CPP' != received 'Java'.	author: NON EQUALS expected 'Milton' != received 'Gilson'.	year: NON EQUALS expected '2008' != received '2006'.	price: equal.	array[1]: title: equal.	author: equal.	year: equal.	price: equal.
+FAIL.	books: book: array[0]: title: NON EQUALS expected 'CPP' != received 'Java'.	author: NON EQUALS expected 'Milton' != received 'Gilson'.	year: NON EQUALS expected '2008' != received '2006'.	price: equal.	array[1]: title: equal.	author: equal.	year: equal.	price: equal.
