@@ -3,11 +3,8 @@ key:
   pathResult: /home/developer/dev/shevchenko/git/mctester/
 kafka:
   bootstrapAddress: localhost:9092
-  groupId: sphinx
-  groupPr: shp_pr
-  topics:
-    in: incoming
-    out: outcoming
+  groupId: sphinx_consumer
+  groupPr: sphinx_producer
 server:
   port: 7777
 spring:

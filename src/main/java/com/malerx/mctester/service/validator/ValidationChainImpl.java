@@ -1,6 +1,7 @@
 package com.malerx.mctester.service.validator;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.malerx.mctester.exceptions.TopicNotFoundException;
 import com.malerx.mctester.kafka.PostmanService;
 import com.malerx.mctester.model.Chain;
 import com.malerx.mctester.model.ChainElement;
@@ -11,9 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Objects;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Функционал класса -- прочитать цепочку из БД, отправить то что должно быть отправлено, получить то, что должно быть
@@ -36,7 +34,16 @@ public class ValidationChainImpl implements ValidationChain {
                 if (element.getDirection().equals("in")) {
                     postman.send(element.getTopic_name(), element.getData());
                 } else if (element.getDirection().equals("out")) {
-                    String received = postman.getAnswer();
+                    String received;
+
+//                    Ловим исключение и пишем в лог/результат, что топика не существует. (либо ошибка модуля либо
+//                    тестовых данных)
+                    try {
+                        received = postman.getAnswer(element.getTopic_name());
+                    } catch (TopicNotFoundException e) {
+                        received = e.getMessage();
+                        log.warn("IN validate() -- {}", received, e);
+                    }
                     if (received == null) {
                         log.info("Chain {} was skipped,", chain.getId());
                         continue;
