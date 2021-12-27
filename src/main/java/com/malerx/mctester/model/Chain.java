@@ -6,7 +6,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
 
-@Document("test")
+@Document("validation")
 @Data
 public class Chain {
     @Id
